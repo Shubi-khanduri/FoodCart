@@ -2,6 +2,7 @@ package com.example.foodcart.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.foodcart.databinding.ActivityMainBinding
@@ -22,22 +23,20 @@ class MainActivity : AppCompatActivity() {
         val adapter = FoodItemAdapter(viewModel)
 
         binding.recyclerView.layoutManager = layoutManager
-        binding.recyclerView.adapter = adapter
+//        binding.recyclerView.adapter = adapter
 
-        viewModel.foodItems.observe(this, {
-            adapter.notifyDataSetChanged()
-        })
+        viewModel.foodItems.observe(this) {
+            Log.i("updatedList", it.toString())
+            binding.recyclerView.adapter = adapter
+        }
 
-        viewModel.totalItemCount.observe(this, { count ->
+        viewModel.totalItemCount.observe(this) { count ->
             binding.totalItemCount.text = "Total Items: $count"
-        })
+        }
 
-        viewModel.totalPrice.observe(this, { price ->
+        viewModel.totalPrice.observe(this) { price ->
             binding.totalPrice.text = "Total Price: $price"
-        })
+        }
 
-      /*  binding.undoButton.setOnClickListener {
-            viewModel.undoDelete()
-        }*/
     }
 }

@@ -1,6 +1,9 @@
 package com.example.foodcart.ui.adapter
+
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.foodcart.databinding.FoodItemBinding
@@ -21,26 +24,31 @@ class FoodItemAdapter(private val viewModel: FoodCartViewModel) :
 
         init {
             binding.deleteButton.setOnClickListener {
-                recentlyDeletedItemPosition = adapterPosition
-                recentlyDeletedItem = viewModel.foodItems.value?.get(adapterPosition)
-                deleteFlag = true
+                val position = adapterPosition
+                val item = viewModel.foodItems.value?.get(position)
+              item.let {
+                  recentlyDeletedItemPosition = adapterPosition
+                  recentlyDeletedItem = viewModel.foodItems.value?.get(adapterPosition)
+                  deleteFlag = true
+//                  viewModel.deleteItem(position)
 
-                // Show undo button and hide linearlayout for 10 seconds
-                binding.undoButton.visibility = android.view.View.VISIBLE
-                binding.linearlayout.visibility = android.view.View.GONE
+                  // Show undo button and hide linearlayout for 10 seconds
+                  binding.undoButton.visibility = View.VISIBLE
+                  binding.linearlayout.visibility = View.GONE
 
-                val currentPosition = adapterPosition // Capture the current position
+                  val currentPosition = adapterPosition // Capture the current position
 
-                handler = Handler().apply {
-                    postDelayed({
-                        if (deleteFlag && recentlyDeletedItemPosition == currentPosition) {
-                            // If the delete flag is still true and the position hasn't changed, perform deletion
-                            viewModel.deleteItem(recentlyDeletedItemPosition)
-                            binding.undoButton.visibility = android.view.View.GONE
-                            deleteFlag = false
-                        }
-                    }, UNDO_TIMEOUT)
-                }
+                  handler = Handler(Looper.myLooper()!!).apply {
+                      postDelayed({
+                          if (deleteFlag && recentlyDeletedItemPosition == currentPosition) {
+                              binding.undoButton.visibility = View.GONE
+                              // If the delete flag is still true and the position hasn't changed, perform deletion
+                              viewModel.deleteItem(position)
+                              deleteFlag = false
+                          }
+                      }, UNDO_TIMEOUT)
+                  }
+              }
             }
 
             binding.undoButton.setOnClickListener {
@@ -89,7 +97,10 @@ class FoodItemAdapter(private val viewModel: FoodCartViewModel) :
         return viewModel.foodItems.value?.size ?: 0
     }
 
+
+
     companion object {
-        private const val UNDO_TIMEOUT = 10000L // 10 seconds
+        private const val UNDO_TIMEOUT = 2000L // 10 seconds
     }
 }
+

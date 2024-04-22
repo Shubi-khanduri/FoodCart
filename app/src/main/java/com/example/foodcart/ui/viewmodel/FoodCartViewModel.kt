@@ -1,5 +1,6 @@
 package com.example.foodcart.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,7 +9,7 @@ import com.example.foodcart.model.FoodItem
 class FoodCartViewModel : ViewModel() {
 
     private val _foodItems = MutableLiveData<List<FoodItem>>()
-    val foodItems: LiveData<List<FoodItem>> = _foodItems
+    val foodItems: MutableLiveData<List<FoodItem>> = _foodItems
 
     private val _totalItemCount = MutableLiveData<Int>()
     val totalItemCount: LiveData<Int> = _totalItemCount
@@ -21,8 +22,8 @@ class FoodCartViewModel : ViewModel() {
 
     private var _deletedItem: FoodItem? = null
 
+
     init {
-        // Initialize food items
         _foodItems.value = listOf(
             FoodItem("A", 29.5),
             FoodItem("B", 30.0),
@@ -57,14 +58,19 @@ class FoodCartViewModel : ViewModel() {
             totalCount += it.quantity
             totalPrice += it.price * it.quantity
         }
+        val itemLis = _foodItems.value
+
         _totalItemCount.value = totalCount
         _totalPrice.value = totalPrice
+        Log.d("Viewmodel","_totalItemCount $totalCount totalPrice $totalPrice  lisst $itemLis  size${itemLis!!.size}")
     }
 
     fun deleteItem(position: Int) {
+        Log.d("Viewmodel","position $position")
         _deletedItem = _foodItems.value?.get(position)
         val currentList = _foodItems.value!!.toMutableList()
-        currentList.removeAt(position)
+            currentList.removeAt(position)
+            Log.d("Viewmodel","delete ifposition $position -> $currentList")
         _foodItems.value = currentList
         calculateTotal()
         _undoButtonVisible.value = true
@@ -72,21 +78,10 @@ class FoodCartViewModel : ViewModel() {
 
     fun undoDelete() {
         _deletedItem?.let {
-            val currentList = _foodItems.value!!.toMutableList()
-            currentList.add(_deletedItem!!)
-            _foodItems.value = currentList
-            _deletedItem = null
             calculateTotal()
             _undoButtonVisible.value = false
         }
     }
 
-    fun hideUndoButton() {
-        _undoButtonVisible.value = false
-    }
-
-    fun showUndoButton() {
-        _undoButtonVisible.value = true
-    }
 }
 
